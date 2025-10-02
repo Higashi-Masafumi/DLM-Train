@@ -9,3 +9,6 @@ optimum-quanto
 torchvision
 lightning
 pydantic
+xformers
+flash-attn
+bitsandbytes

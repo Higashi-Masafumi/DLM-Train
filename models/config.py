@@ -13,6 +13,17 @@ from typing_extensions import Self
 
 
 class Config(BaseModel):
+    """Configuration class for the model.
+
+    Args:
+        BaseModel (_type_): _description_
+
+    Raises:
+        ValueError: _description_
+
+    Returns:
+        _type_: _description_
+    """
     name: StrictStr = Field(description="The name of the config")
     block_size: StrictInt = Field(
         description="The block size of the config", default=4096
@@ -86,6 +97,14 @@ class Config(BaseModel):
 
     @model_validator(mode="after")
     def validate_config(self) -> Self:
+        """Validate the configuration.
+
+        Raises:
+            ValueError: If the configuration is invalid.
+
+        Returns:
+            Self: The validated configuration.
+        """
         assert self.n_embed % self.n_head == 0
         if self.padded_vocab_size is None:
             # padded_vocab_sizeをpadding_multipleの倍数にする
@@ -108,4 +127,9 @@ class Config(BaseModel):
 
     @property
     def head_size(self) -> StrictInt:
+        """The size of each attention head.
+
+        Returns:
+            StrictInt: The size of each attention head.
+        """
         return self.n_embed // self.n_head
