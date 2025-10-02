@@ -11,8 +11,8 @@ services:
 
     # ポートフォワーディング
     ports:
-      - "15367:8888" # Jupyter Notebook (ホスト側:コンテナ側)
-      - "25367:8097" # Visdom Dashboard
+      - "15368:8888" # Jupyter Notebook (ホスト側:コンテナ側)
+      - "25368:8097" # Visdom Dashboard
 
     # ボリュームマウント（フォルダの共有）
     volumes:
