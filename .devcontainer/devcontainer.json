@@ -1,5 +1,5 @@
 {
-    "name": "LLM Env Container",
+    "name": "Diffusers Dev Container",
     // 既存のdocker-compose.ymlを利用することを指定
     "dockerComposeFile": "../docker-compose.yml",
 

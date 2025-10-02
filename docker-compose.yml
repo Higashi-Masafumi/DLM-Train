@@ -7,12 +7,12 @@ services:
     image: ttorch-nvidia:u22.04c12.2t2.2.0v1
 
     # コンテナ名
-    container_name: llm-env
+    container_name: diffusion-lm-trainer
 
     # ポートフォワーディング
     ports:
-      - "15267:8888" # Jupyter Notebook (ホスト側:コンテナ側)
-      - "25267:8097" # Visdom Dashboard
+      - "15367:8888" # Jupyter Notebook (ホスト側:コンテナ側)
+      - "25367:8097" # Visdom Dashboard
 
     # ボリュームマウント（フォルダの共有）
     volumes:
