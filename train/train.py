@@ -108,7 +108,6 @@ log_iter_interval: int = log_step_interval * gradient_accumulation_steps
 # Dataset mixture config (prefix, weight); star=0.0 means disabled by default
 train_data_config: list[tuple[str, float]] = [
     ("train_slim", 1.0),
-    ("train_star", 0.0),
 ]
 val_data_config: list[tuple[str, float]] = [
     ("validation", 1.0),
@@ -163,8 +162,8 @@ def forward_process(
 
 def setup(
     devices: int = 1,
-    train_data_dir: Path = Path("/dataset/slim_star_combined"),
-    val_data_dir: Path = Path("/dataset/slim_star_combined"),
+    train_data_dir: Path = Path("datasets/slim_star_combined"),
+    val_data_dir: Path = Path("datasets/slim_star_combined"),
     precision: str | None = None,
     tpu: bool = False,
     resume: bool | Path = True,
