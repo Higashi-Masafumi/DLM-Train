@@ -11,7 +11,7 @@ import lightning as L
 import torch
 from torch.utils.data import DataLoader
 
-from loader.packed_dataset import CombinedDataset, PackedDataset
+from src.data import CombinedDataset, PackedDataset
 
 
 def collate_fn(batch: list[torch.Tensor]) -> tuple[torch.Tensor, torch.Tensor]:
@@ -168,6 +168,7 @@ class SlimPajamaDataModule(L.LightningDataModule):
 
     def train_dataloader(self) -> DataLoader:
         """訓練用DataLoader"""
+        assert self.train_dataset is not None, "train_dataset should be initialized"
         return DataLoader(
             self.train_dataset,
             batch_size=self.micro_batch_size,
@@ -179,6 +180,7 @@ class SlimPajamaDataModule(L.LightningDataModule):
 
     def val_dataloader(self) -> DataLoader:
         """検証用DataLoader"""
+        assert self.val_dataset is not None, "val_dataset should be initialized"
         return DataLoader(
             self.val_dataset,
             batch_size=self.micro_batch_size,

@@ -9,7 +9,7 @@ from typing import List
 import numpy as np
 from tqdm import tqdm
 
-import loader.packed_dataset as packed_dataset
+import src.data.packed_dataset as packed_dataset
 from models.tokenizer import Tokenizer
 
 # Filename for SlimPajama
