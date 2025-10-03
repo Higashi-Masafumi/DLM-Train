@@ -4,6 +4,7 @@ import torch
 from flash_attn.layers.rotary import apply_rotary_emb  # ここからimportすればOK
 
 
+
 class ApplyRotaryEmb(torch.autograd.Function):
     @staticmethod
     def forward(ctx, x, cos, sin, interleaved=False, inplace=False):

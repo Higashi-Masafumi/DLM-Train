@@ -1,3 +1,4 @@
+from importlib import import_module
 from typing import Any, Literal, Type
 
 import torch
@@ -12,8 +13,7 @@ from pydantic import (
 )
 from typing_extensions import Self
 
-import models.model
-from models.rmsnorm import FusedRMSNorm, RMSNorm
+from .rmsnorm import FusedRMSNorm, RMSNorm
 
 
 class Config(BaseModel):
@@ -83,14 +83,15 @@ class Config(BaseModel):
     shared_attention_norm: StrictBool = Field(
         description="The shared attention norm of the config", default=False
     )
-    _norm_class: Literal["LayerNorm", "RMSNorm"] = Field(
-        description="The norm class of the config", default="LayerNorm"
+    # 名前の先頭にアンダースコアを付けない（pydantic v2 の制約に対応）
+    norm_class_name: Literal["LayerNorm", "RMSNorm", "FusedRMSNorm"] = Field(
+        description="The norm class of the config (by name)", default="LayerNorm"
     )
     norm_eps: StrictFloat = Field(
         description="The norm epsilon of the config", default=1e-5
     )
-    _mlp_class: Literal["GptNeoXMLP", "LLaMAMLP"] = Field(
-        description="The MLP class of the config", default="GptNeoXMLP"
+    mlp_class_name: Literal["GptNeoXMLP", "LLaMAMLP"] = Field(
+        description="The MLP class of the config (by name)", default="GptNeoXMLP"
     )
     intermediate_size: StrictInt | None = Field(
         description="The intermediate size of the config", default=None
@@ -124,7 +125,7 @@ class Config(BaseModel):
         else:
             self.n_query_groups = self.n_head
         if self.intermediate_size is None:
-            if self._mlp_class == "LLaMAMLP":
+            if self.mlp_class_name == "LLaMAMLP":
                 raise ValueError("intermediate_size is required for LLaMAMLP")
             self.intermediate_size = self.n_embed * 4
         return self
@@ -147,17 +148,17 @@ class Config(BaseModel):
     @property
     def mlp_class(self) -> Type:
         # `self._mlp_class` cannot be the type to keep the config json serializable
-        return getattr(models.model, self._mlp_class)
+        model_module = import_module("models.model")
+        return getattr(model_module, self.mlp_class_name)
 
     @property
     def norm_class(self) -> Type:
         # `self._norm_class` cannot be the type to keep the config json serializable
-        if self._norm_class == "RMSNorm":
-
+        if self.norm_class_name == "RMSNorm":
             return RMSNorm
-        elif self._norm_class == "FusedRMSNorm":
+        elif self.norm_class_name == "FusedRMSNorm":
             return FusedRMSNorm
-        return getattr(torch.nn, self._norm_class)
+        return getattr(torch.nn, self.norm_class_name)
 
 
 configs = []
@@ -174,9 +175,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=1024,
         n_query_groups=4,
     ),
@@ -191,9 +192,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=1536,
         n_query_groups=6,
     ),
@@ -208,9 +209,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=2048,
         n_query_groups=8,
     ),
@@ -225,9 +226,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=2304,
         n_query_groups=9,
     ),
@@ -242,9 +243,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=2560,
         n_query_groups=10,
     ),
@@ -259,9 +260,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=2560,
         n_query_groups=10,
     ),
@@ -276,9 +277,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=1600,
         n_query_groups=8,
     ),
@@ -293,9 +294,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=3072,
         n_query_groups=12,
     ),
@@ -310,9 +311,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=3072,
         n_query_groups=12,
     ),
@@ -327,9 +328,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=3072,
         n_query_groups=12,
     ),
@@ -344,9 +345,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=3584,
         n_query_groups=14,
     ),
@@ -361,9 +362,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=3584,
         n_query_groups=14,
     ),
@@ -378,9 +379,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=3584,
         n_query_groups=14,
     ),
@@ -395,9 +396,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=4096,
         n_query_groups=16,
     ),
@@ -412,9 +413,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=4096,
         n_query_groups=16,
     ),
@@ -429,9 +430,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=4096,
         n_query_groups=16,
     ),
@@ -446,9 +447,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=5120,
         n_query_groups=10,
     ),
@@ -463,9 +464,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=5120,
         n_query_groups=10,
     ),
@@ -480,9 +481,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=5632,
         n_query_groups=11,
     ),
@@ -497,9 +498,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=5120,
         n_query_groups=10,
     ),
@@ -514,9 +515,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,  # Llama 2 use 1e-5. Llama 1 use 1e-6
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=5632,
         n_query_groups=11,
     ),
@@ -531,9 +532,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,  # Llama 2 use 1e-5. Llama 1 use 1e-6
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=6144,
         n_query_groups=12,
     ),
@@ -548,9 +549,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,  # Llama 2 use 1e-5. Llama 1 use 1e-6
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=5632,
         n_query_groups=11,
     ),
@@ -565,9 +566,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,  # Llama 2 use 1e-5. Llama 1 use 1e-6
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=6144,
         n_query_groups=12,
     ),
@@ -582,9 +583,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,  # Llama 2 use 1e-5. Llama 1 use 1e-6
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=6144,
         n_query_groups=12,
     ),
@@ -599,9 +600,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,  # Llama 2 use 1e-5. Llama 1 use 1e-6
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=7168,
         n_query_groups=14,
     ),
@@ -616,9 +617,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,  # Llama 2 use 1e-5. Llama 1 use 1e-6
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=7168,
         n_query_groups=14,
     ),
@@ -633,9 +634,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,  # Llama 2 use 1e-5. Llama 1 use 1e-6
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=8192,
         n_query_groups=16,
     ),
@@ -650,9 +651,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,  # Llama 2 use 1e-5. Llama 1 use 1e-6
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=8192,
         n_query_groups=16,
     ),
@@ -667,9 +668,9 @@ Diff_LLaMA = [
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
-        _norm_class="FusedRMSNorm",
+        norm_class_name="FusedRMSNorm",
         norm_eps=1e-5,  # Llama 2 use 1e-5. Llama 1 use 1e-6
-        _mlp_class="LLaMAMLP",
+        mlp_class_name="LLaMAMLP",
         intermediate_size=8704,
         n_query_groups=17,
     ),

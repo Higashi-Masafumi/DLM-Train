@@ -12,8 +12,8 @@ from lightning_utilities.core.imports import RequirementCache
 from typing_extensions import Self
 from xformers.ops import SwiGLU
 
-from models.config import Config
-from models.fused_rotary_embedding import apply_rotary_emb_func
+from .config import Config
+from .fused_rotary_embedding import apply_rotary_emb_func
 
 RoPECache = tuple[torch.Tensor, torch.Tensor]
 KVCache = tuple[torch.Tensor, torch.Tensor]
