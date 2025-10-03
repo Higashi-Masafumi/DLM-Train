@@ -23,6 +23,7 @@ from pathlib import Path
 
 import hydra
 import lightning as L
+import torch
 from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
 from lightning.pytorch.loggers import CSVLogger, WandbLogger
 from omegaconf import DictConfig, OmegaConf
@@ -128,7 +129,26 @@ def main(cfg: DictConfig) -> None:
     print("Initializing Trainer...")
     print("=" * 80)
 
+    # Trainer設定を辞書に変換
     trainer_kwargs = OmegaConf.to_container(cfg.trainer, resolve=True)
+    assert isinstance(trainer_kwargs, dict), "trainer_kwargs must be a dict"
+
+    # strategyが_target_を持つ場合はインスタンス化
+    if "strategy" in trainer_kwargs and isinstance(trainer_kwargs.get("strategy"), dict):
+        strategy_dict = trainer_kwargs["strategy"]
+        if isinstance(strategy_dict, dict) and "_target_" in strategy_dict:
+            # mixed_precisionのdtype設定を手動で行う
+            if "mixed_precision" in strategy_dict and isinstance(strategy_dict["mixed_precision"], dict):
+                mp_dict = strategy_dict["mixed_precision"]
+                if mp_dict.get("param_dtype") is None:
+                    mp_dict["param_dtype"] = torch.bfloat16
+                if mp_dict.get("reduce_dtype") is None:
+                    mp_dict["reduce_dtype"] = torch.bfloat16
+                if mp_dict.get("buffer_dtype") is None:
+                    mp_dict["buffer_dtype"] = torch.bfloat16
+
+            trainer_kwargs["strategy"] = hydra.utils.instantiate(cfg.trainer.strategy)
+            print(f"  ✓ Strategy: {type(trainer_kwargs['strategy']).__name__}")
 
     trainer = L.Trainer(
         **trainer_kwargs,

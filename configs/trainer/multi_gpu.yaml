@@ -3,7 +3,7 @@
 
 trainer:
   accelerator: gpu
-  devices: 4  # 4 GPU
+  devices: 1  # 4 GPU
   num_nodes: 1
 
   # FSDP戦略
@@ -13,9 +13,11 @@ trainer:
     activation_checkpointing_policy: null
     cpu_offload: false
     mixed_precision:
-      param_dtype: bfloat16
-      reduce_dtype: bfloat16
-      buffer_dtype: bfloat16
+      _target_: torch.distributed.fsdp.MixedPrecision
+      param_dtype: null  # train.pyでtorch.bfloat16に設定
+      reduce_dtype: null  # train.pyでtorch.bfloat16に設定
+      buffer_dtype: null  # train.pyでtorch.bfloat16に設定
+      keep_low_precision_grads: false
     sharding_strategy: "FULL_SHARD"  # ZeRO-3相当
 
   precision: bf16-mixed
@@ -29,8 +31,8 @@ trainer:
 
   log_every_n_steps: 10
 
-  gradient_clip_val: 1.0
-  gradient_clip_algorithm: norm
+  gradient_clip_val: null  # FSDPではgradient clippingをサポートしていない
+  gradient_clip_algorithm: null
   accumulate_grad_batches: ${training.gradient_accumulation_steps}
 
   enable_checkpointing: true

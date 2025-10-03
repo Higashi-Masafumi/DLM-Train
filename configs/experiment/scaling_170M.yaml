@@ -34,6 +34,6 @@ optimizer:
 
 # トレーナー設定のオーバーライド
 trainer:
-  devices: 4
+  devices: 1
   val_check_interval: 5000
   log_every_n_steps: 10
