@@ -10,5 +10,6 @@ torchvision
 lightning
 pydantic
 xformers
-flash-attn
+flash-attn==2.8.2
 bitsandbytes
+datasets
