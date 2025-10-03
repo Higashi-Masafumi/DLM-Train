@@ -1,0 +1,36 @@
+# @package _global_
+# デフォルトコールバック設定
+
+callbacks:
+  # モデルチェックポイント
+  model_checkpoint:
+    _target_: lightning.pytorch.callbacks.ModelCheckpoint
+    dirpath: ${output_dir}/checkpoints
+    filename: "step{step:06d}-loss{train_loss:.4f}"
+    monitor: train_loss
+    mode: min
+    save_top_k: 3
+    save_last: true
+    every_n_train_steps: 5000
+    save_on_train_epoch_end: false
+    auto_insert_metric_name: false
+
+  # 学習率モニター
+  learning_rate_monitor:
+    _target_: lightning.pytorch.callbacks.LearningRateMonitor
+    logging_interval: step
+    log_momentum: false
+
+  # 速度モニター（カスタム）
+  speed_monitor:
+    _target_: src.callbacks.speed_monitor.SpeedMonitorCallback
+    log_interval: 10
+    window_size: 50
+    flops_available: ${training.flops_budget}
+    log_iter_throughput: true
+    log_flops_per_sec: true
+
+  # モデルサマリー
+  model_summary:
+    _target_: lightning.pytorch.callbacks.ModelSummary
+    max_depth: 2

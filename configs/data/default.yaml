@@ -1,0 +1,32 @@
+# @package _global_
+# デフォルトデータ設定（SlimPajama）
+
+data:
+  _target_: src.datamodules.slim_pajama.SlimPajamaDataModule
+
+  # データディレクトリ
+  data_dir: /work/datasets/slim_star_combined
+
+  # データセットプレフィックス
+  train_prefix: "train_slimpajama"
+  val_prefix: "validation"
+
+  # バッチサイズ設定
+  global_batch_size: 256  # 全デバイスでのバッチサイズ
+  micro_batch_size: 8     # 各デバイスでのマイクロバッチサイズ
+
+  # データローダー設定
+  num_workers: 4
+  pin_memory: true
+  persistent_workers: true
+
+  # データセット設定
+  block_size: 2048
+  train_chunks: 100  # 訓練データのチャンク数
+  val_chunks: 10     # 検証データのチャンク数
+  shuffle: true
+  seed: ${seed}
+
+# トレーニング設定に注入
+training:
+  global_batch_size: ${data.global_batch_size}

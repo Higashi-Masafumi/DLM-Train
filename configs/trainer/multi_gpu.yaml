@@ -1,0 +1,40 @@
+# @package _global_
+# マルチGPU設定（FSDP）
+
+trainer:
+  accelerator: gpu
+  devices: 4  # 4 GPU
+  num_nodes: 1
+
+  # FSDP戦略
+  strategy:
+    _target_: lightning.pytorch.strategies.FSDPStrategy
+    auto_wrap_policy: null  # モデル側で定義
+    activation_checkpointing_policy: null
+    cpu_offload: false
+    mixed_precision:
+      param_dtype: bfloat16
+      reduce_dtype: bfloat16
+      buffer_dtype: bfloat16
+    sharding_strategy: "FULL_SHARD"  # ZeRO-3相当
+
+  precision: bf16-mixed
+
+  max_steps: ${training.max_steps}
+  max_epochs: -1
+
+  val_check_interval: 5000
+  check_val_every_n_epoch: null
+  limit_val_batches: 100
+
+  log_every_n_steps: 10
+
+  gradient_clip_val: 1.0
+  gradient_clip_algorithm: norm
+  accumulate_grad_batches: ${training.gradient_accumulation_steps}
+
+  enable_checkpointing: true
+  deterministic: false
+  benchmark: true
+  enable_progress_bar: true
+  enable_model_summary: true

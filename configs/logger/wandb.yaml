@@ -1,0 +1,25 @@
+# @package _global_
+# Weights & Biases ロガー設定
+
+logger:
+  _target_: lightning.pytorch.loggers.WandbLogger
+
+  project: ${project_name}
+  name: ${experiment.name}
+  save_dir: ${output_dir}
+
+  # タグとメタデータ
+  tags: ${experiment.tags}
+  notes: ${experiment.notes}
+
+  # ログ設定
+  log_model: false  # モデルの自動アップロードを無効化（大きいため）
+  offline: false
+
+  # 設定の記録（シンプルな値のみ）
+  # 複雑なオブジェクト（dataclass等）は避ける
+  # config:
+  #   model: ${model.model_config.name}
+  #   batch_size: ${data.global_batch_size}
+  #   learning_rate: ${optimizer.lr}
+  #   max_steps: ${training.max_steps}

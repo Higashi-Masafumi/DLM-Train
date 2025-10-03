@@ -1,0 +1,37 @@
+# @package _global_
+# デフォルトトレーナー設定（シングルGPU）
+
+trainer:
+  # デバイス設定
+  accelerator: gpu
+  devices: 1
+  num_nodes: 1
+
+  # 精度設定
+  precision: bf16-mixed  # BF16混合精度
+
+  # トレーニングステップ
+  max_steps: ${training.max_steps}
+  max_epochs: -1  # ステップベースなのでepochは無制限
+
+  # 検証設定
+  val_check_interval: 5000  # 5000ステップごとに検証
+  check_val_every_n_epoch: null  # ステップベースなのでnull
+  limit_val_batches: 100  # 検証バッチ数を制限
+
+  # ログ設定
+  log_every_n_steps: 10
+
+  # 勾配設定
+  gradient_clip_val: 1.0
+  gradient_clip_algorithm: norm
+  accumulate_grad_batches: ${training.gradient_accumulation_steps}
+
+  # チェックポイント設定
+  enable_checkpointing: true
+
+  # その他
+  deterministic: false  # 速度優先
+  benchmark: true  # cuDNNベンチマークを有効化
+  enable_progress_bar: true
+  enable_model_summary: true

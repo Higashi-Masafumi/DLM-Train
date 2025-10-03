@@ -1,0 +1,39 @@
+# @package _global_
+# 170Mモデルのスケーリング実験設定
+
+defaults:
+  - override /model: default  # 170M (default)
+  - override /data: default
+  - override /trainer: multi_gpu
+  - override /optimizer: default
+  - override /scheduler: default
+  - _self_
+
+# 実験メタデータ
+experiment:
+  name: "scaling_170M_slimpajama_10e18flops"
+  tags: ["scaling", "170M", "slimpajama", "fsdp"]
+  notes: "Scaling experiment with 170M model on SlimPajama dataset (10e18 FLOPs budget)"
+
+# シード設定
+seed: 42
+
+# FLOPsベースのトレーニング設定
+training:
+  flops_budget: 10.0e18  # 10e18 FLOPs
+
+# データ設定のオーバーライド
+data:
+  global_batch_size: 256
+  micro_batch_size: 8
+
+# オプティマイザ設定のオーバーライド
+optimizer:
+  lr: 2.0e-4
+  weight_decay: 0.1
+
+# トレーナー設定のオーバーライド
+trainer:
+  devices: 4
+  val_check_interval: 5000
+  log_every_n_steps: 10

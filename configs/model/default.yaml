@@ -1,0 +1,29 @@
+# @package _global_
+# デフォルトモデル設定（170Mパラメータモデル）
+
+model:
+  _target_: src.models.lightning_module.DiffusionLMLightningModule
+
+  # モデルアーキテクチャ設定
+  model_config:
+    name: "Llama-170M"
+    block_size: 2048
+    vocab_size: 32000
+    n_layer: 12
+    n_head: 12
+    n_embd: 768
+    rotary_percentage: 1.0
+    parallel_residual: false
+    bias: false
+    norm_class_name: "FusedRMSNorm"
+    norm_eps: 1.0e-5
+    mlp_class_name: "LLaMAMLP"
+    intermediate_size: 2048
+    condense_ratio: 1
+
+  # パラメータ数（FLOPs計算用）
+  num_parameters: 169.897728e6  # 約170M
+
+# トレーニング設定に注入
+training:
+  model_params: ${model.num_parameters}

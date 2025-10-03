@@ -7,7 +7,8 @@ wandb
 hqq
 optimum-quanto
 torchvision
-lightning
+lightning>=2.0.0
+pytorch-lightning>=2.0.0
 pydantic
 xformers
 flash-attn==2.8.2
@@ -15,3 +16,5 @@ bitsandbytes
 datasets
 sentencepiece
 jsonargparse
+hydra-core>=1.3.0
+omegaconf>=2.3.0

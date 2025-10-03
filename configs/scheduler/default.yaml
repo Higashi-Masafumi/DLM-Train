@@ -1,0 +1,15 @@
+# @package _global_
+# デフォルトスケジューラ設定（Cosine Annealing with Warmup）
+
+scheduler:
+  _target_: src.utils.lr_scheduler.CosineAnnealingWithWarmup
+  _partial_: true
+
+  warmup_steps: ${training.warmup_steps}
+  max_steps: ${training.max_steps}
+  min_lr: 2.0e-5
+
+  # PyTorch Lightning用の設定
+  interval: step  # ステップごとに更新
+  frequency: 1
+  name: learning_rate

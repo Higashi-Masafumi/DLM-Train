@@ -1,0 +1,42 @@
+# @package _global_
+# デバッグ用設定（小規模・高速イテレーション）
+
+defaults:
+  - override /model: diffusion_llama_6M  # 小規模モデル
+  - override /data: default
+  - override /trainer: default  # シングルGPU
+  - override /optimizer: default
+  - override /scheduler: default
+  - _self_
+
+# 実験メタデータ
+experiment:
+  name: "debug_6M"
+  tags: ["debug", "6M"]
+  notes: "Debug run with small model"
+
+seed: 42
+
+# 小規模FLOPs予算
+training:
+  flops_budget: 0.1e18  # 0.1e18 FLOPs（非常に短い）
+
+# データ設定のオーバーライド
+data:
+  global_batch_size: 32
+  micro_batch_size: 16
+  train_chunks: 1  # 1チャンクのみ
+  val_chunks: 1
+
+# トレーナー設定のオーバーライド
+trainer:
+  devices: 1
+  val_check_interval: 100  # 頻繁に検証
+  log_every_n_steps: 1
+  limit_train_batches: 1000  # 訓練バッチを制限
+  limit_val_batches: 10
+  fast_dev_run: false  # 必要に応じてtrueに
+
+# Wandbをオフラインモードに
+logger:
+  offline: true

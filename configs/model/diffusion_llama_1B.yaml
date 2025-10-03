@@ -1,0 +1,26 @@
+# @package _global_
+# 1Bパラメータモデル設定（大規模学習用）
+
+model:
+  _target_: src.models.lightning_module.DiffusionLMLightningModule
+
+  model_config:
+    name: "Llama-1B"
+    block_size: 2048
+    vocab_size: 32000
+    n_layer: 22
+    n_head: 16
+    n_embd: 2048
+    rotary_percentage: 1.0
+    parallel_residual: false
+    bias: false
+    norm_class_name: "FusedRMSNorm"
+    norm_eps: 1.0e-5
+    mlp_class_name: "LLaMAMLP"
+    intermediate_size: 5504
+    condense_ratio: 1
+
+  num_parameters: 1027.677952e6  # 約1B
+
+training:
+  model_params: ${model.num_parameters}
