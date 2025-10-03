@@ -13,3 +13,5 @@ xformers
 flash-attn==2.8.2
 bitsandbytes
 datasets
+sentencepiece
+jsonargparse
