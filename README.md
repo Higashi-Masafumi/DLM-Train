@@ -45,5 +45,7 @@
         wandb login # api keyをセットする
     ```
 
-
-
+## 参考資料
+- [SMDM](https://github.com/ML-GSAI/SMDM)：このリポジトリのベース
+- [TinyLlama](https://github.com/jzhang38/TinyLlama)：SMDMのベースとなったリポジトリ
+- [Pytorch Lightning](https://github.com/Lightning-AI/litgpt/tree/main/litgpt)：TinyLlamaのベースとなったリポジトリ
